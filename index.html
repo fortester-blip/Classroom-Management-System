@@ -65,13 +65,12 @@
     <!-- Main Container -->
     <main class="flex-grow overflow-auto flex flex-col p-4 md:p-8">
         
-        <!-- ================= AUTH VIEW (Redesigned) ================= -->
+        <!-- ================= AUTH VIEW ================= -->
         <div id="authView" class="flex-grow flex items-center justify-center">
             <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-gray-100">
                 
                 <!-- Left Side / Branding -->
                 <div class="w-full md:w-1/2 bg-gradient-to-br from-primary to-secondary text-white p-10 lg:p-12 flex flex-col justify-center relative overflow-hidden">
-                    <!-- Decorative background shapes -->
                     <div class="absolute top-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-2xl"></div>
                     <div class="absolute bottom-0 right-0 w-80 h-80 bg-blue-300 opacity-20 rounded-full translate-x-1/3 translate-y-1/3 blur-2xl"></div>
 
@@ -241,6 +240,13 @@
                                 <h3 class="font-bold text-primary" id="gradingTaskName"></h3>
                                 <span class="bg-accent text-primary px-3 py-1 rounded-full text-sm font-bold shadow-sm" id="gradingMaxScore"></span>
                             </div>
+                            
+                            <!-- เพิ่มคำแนะนำการใช้งานคีย์บอร์ด -->
+                            <div class="text-xs text-gray-500 mb-3 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-info text-blue-400"></i>
+                                <span><b>เคล็ดลับ:</b> กด <kbd class="bg-gray-100 border px-1 rounded">Enter</kbd> หรือ <kbd class="bg-gray-100 border px-1 rounded">↓</kbd> เพื่อเลื่อนไปช่องคะแนนของนักเรียนคนถัดไปได้ทันที</span>
+                            </div>
+
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-gray-100 text-gray-600 border-b">
@@ -331,11 +337,8 @@
         let currentUser = null;
         let currentClassId = null;
         
-        // Data Caches
         let studentsCache = {};
         let tasksCache = {};
-
-        // Active Listeners
         let activeListeners = [];
 
         // ================= UI HELPERS =================
@@ -370,15 +373,12 @@
         // ================= AUTHENTICATION =================
         window.toggleAuthMode = () => {
             isLoginMode = !isLoginMode;
-            
-            // Update Texts
             document.getElementById('authTitle').innerText = isLoginMode ? 'เข้าสู่ระบบ' : 'สร้างบัญชีใหม่';
             document.getElementById('authSubtitle').innerText = isLoginMode ? 'ยินดีต้อนรับกลับมา! กรุณากรอกข้อมูลของคุณ' : 'เริ่มต้นจัดการห้องเรียนของคุณได้อย่างง่ายดาย';
             document.getElementById('authBtn').innerText = isLoginMode ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
             document.getElementById('authToggleText').innerText = isLoginMode ? 'ยังไม่มีบัญชีใช่หรือไม่?' : 'มีบัญชีอยู่แล้วใช่หรือไม่?';
             document.getElementById('authToggleLink').innerText = isLoginMode ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
             
-            // Update Button Styling based on mode
             const btn = document.getElementById('authBtn');
             if (isLoginMode) {
                 btn.className = "w-full bg-gradient-to-r from-primary to-secondary hover:from-blue-800 hover:to-blue-600 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mt-4";
@@ -421,7 +421,6 @@
             }
         }
 
-        // Auth State Listener
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -1062,6 +1061,7 @@
             }
 
             const sortedStudents = getSortedStudents();
+            let index = 0; // เพิ่มตัวนับ index สำหรับ input
 
             sortedStudents.forEach(s => {
                 const score = currentScores[s.id] ? currentScores[s.id].score : '';
@@ -1072,7 +1072,10 @@
                         <td class="p-3 text-sm text-gray-500">${s.studentCode || '-'}</td>
                         <td class="p-3 font-medium">${getFullName(s)}</td>
                         <td class="p-3 text-center">
+                            <!-- เพิ่ม id และ onkeydown -->
                             <input type="number" min="0" max="${task.maxScore}" 
+                                id="score-input-${index}"
+                                onkeydown="window.handleScoreKey(event, ${index})"
                                 class="w-20 p-1 border border-gray-300 rounded text-center focus:ring-2 focus:ring-secondary outline-none font-bold text-primary" 
                                 value="${score}"
                                 placeholder="-"
@@ -1080,7 +1083,30 @@
                         </td>
                     </tr>
                 `;
+                index++;
             });
+        };
+
+        // ฟังก์ชันจัดการเมื่อกดปุ่มบนคีย์บอร์ดในช่องกรอกคะแนน
+        window.handleScoreKey = (event, currentIndex) => {
+            // ถากด Enter หรือ ลูกศรลง ให้ไปช่องถัดไป (ด้านล่าง)
+            if (event.key === 'Enter' || event.key === 'ArrowDown') {
+                event.preventDefault(); // ป้องกันไม่ให้หน้าเว็บเลื่อน
+                const nextInput = document.getElementById(`score-input-${currentIndex + 1}`);
+                if (nextInput) {
+                    nextInput.focus();
+                    nextInput.select(); // คลุมดำข้อความเดิมเพื่อให้พิมพ์ทับได้เลย
+                }
+            } 
+            // ถากด ลูกศรขึ้น ให้กลับไปช่องก่อนหน้า (ด้านบน)
+            else if (event.key === 'ArrowUp') {
+                event.preventDefault(); // ป้องกันไม่ให้หน้าเว็บเลื่อน
+                const prevInput = document.getElementById(`score-input-${currentIndex - 1}`);
+                if (prevInput) {
+                    prevInput.focus();
+                    prevInput.select(); // คลุมดำข้อความเดิมเพื่อให้พิมพ์ทับได้เลย
+                }
+            }
         };
 
         window.saveScore = async (taskId, studentId, scoreValue, maxScore) => {
@@ -1101,6 +1127,7 @@
                 });
                 Toast.fire({ icon: 'success', title: 'บันทึกคะแนนแล้ว' });
                 
+                // อัปเดตค่าในช่องกรอกให้เป็นค่าที่ถูกจำกัดตาม maxScore
                 const inputs = document.querySelectorAll(`input[onchange*="${studentId}"]`);
                 if(inputs.length > 0) inputs[0].value = score;
 
