@@ -63,44 +63,72 @@
     </nav>
 
     <!-- Main Container -->
-    <main class="flex-grow overflow-auto p-4 md:p-8">
+    <main class="flex-grow overflow-auto flex flex-col p-4 md:p-8">
         
-        <!-- ================= AUTH VIEW ================= -->
-        <div id="authView" class="max-w-md mx-auto mt-10 bg-white p-8 rounded-2xl shadow-xl border border-blue-100">
-            <div class="text-center mb-8">
-                <i class="fa-solid fa-graduation-cap text-5xl text-secondary mb-3"></i>
-                <h2 class="text-2xl font-bold text-primary">ยินดีต้อนรับ</h2>
-                <p class="text-gray-500 text-sm">กรุณาเข้าสู่ระบบเพื่อจัดการห้องเรียน</p>
-            </div>
+        <!-- ================= AUTH VIEW (Redesigned) ================= -->
+        <div id="authView" class="flex-grow flex items-center justify-center">
+            <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-gray-100">
+                
+                <!-- Left Side / Branding -->
+                <div class="w-full md:w-1/2 bg-gradient-to-br from-primary to-secondary text-white p-10 lg:p-12 flex flex-col justify-center relative overflow-hidden">
+                    <!-- Decorative background shapes -->
+                    <div class="absolute top-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-2xl"></div>
+                    <div class="absolute bottom-0 right-0 w-80 h-80 bg-blue-300 opacity-20 rounded-full translate-x-1/3 translate-y-1/3 blur-2xl"></div>
 
-            <form id="authForm" onsubmit="event.preventDefault(); window.handleAuth();">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-envelope absolute left-3 top-3 text-gray-400"></i>
-                        <input type="email" id="email" required class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none">
+                    <div class="relative z-10 text-center">
+                        <div class="inline-flex items-center justify-center w-24 h-24 bg-white/20 rounded-3xl backdrop-blur-sm mb-6 shadow-inner">
+                            <i class="fa-solid fa-graduation-cap text-5xl text-white"></i>
+                        </div>
+                        <h1 class="text-3xl lg:text-4xl font-bold mb-4 tracking-wide">Classroom<br>Manager</h1>
+                        <p class="text-blue-100 text-sm lg:text-base leading-relaxed max-w-xs mx-auto">
+                            ระบบจัดการห้องเรียน บันทึกคะแนน และติดตามผลการเรียนอย่างมีประสิทธิภาพ ออกแบบมาเพื่อคุณครูโดยเฉพาะ
+                        </p>
                     </div>
                 </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-lock absolute left-3 top-3 text-gray-400"></i>
-                        <input type="password" id="password" required minlength="6" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none">
+
+                <!-- Right Side / Form -->
+                <div class="w-full md:w-1/2 p-8 lg:p-14 bg-white flex flex-col justify-center">
+                    <div class="text-center md:text-left mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2" id="authTitle">เข้าสู่ระบบ</h2>
+                        <p class="text-gray-500 text-sm" id="authSubtitle">ยินดีต้อนรับกลับมา! กรุณากรอกข้อมูลของคุณ</p>
+                    </div>
+
+                    <form id="authForm" onsubmit="event.preventDefault(); window.handleAuth();" class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5 ml-1">อีเมล</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i class="fa-solid fa-envelope text-gray-400 group-focus-within:text-secondary transition-colors"></i>
+                                </div>
+                                <input type="email" id="email" required placeholder="ครูสมศรี@example.com" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 focus:bg-white focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5 ml-1">รหัสผ่าน</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i class="fa-solid fa-lock text-gray-400 group-focus-within:text-secondary transition-colors"></i>
+                                </div>
+                                <input type="password" id="password" required minlength="6" placeholder="••••••••" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 focus:bg-white focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all shadow-sm">
+                            </div>
+                        </div>
+                        <button type="submit" id="authBtn" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-blue-800 hover:to-blue-600 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mt-4">
+                            เข้าสู่ระบบ
+                        </button>
+                    </form>
+
+                    <div class="mt-8 text-center text-sm">
+                        <span id="authToggleText" class="text-gray-500">ยังไม่มีบัญชีใช่หรือไม่?</span>
+                        <button type="button" onclick="window.toggleAuthMode()" id="authToggleLink" class="text-secondary font-bold hover:text-primary transition-colors hover:underline ml-1">
+                            สมัครสมาชิก
+                        </button>
                     </div>
                 </div>
-                <button type="submit" id="authBtn" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg">
-                    เข้าสู่ระบบ
-                </button>
-            </form>
-
-            <div class="mt-6 text-center text-sm">
-                <span id="authToggleText" class="text-gray-600">ยังไม่มีบัญชีใช่หรือไม่?</span>
-                <a href="#" onclick="window.toggleAuthMode()" id="authToggleLink" class="text-secondary font-bold hover:underline ml-1">สมัครสมาชิก</a>
             </div>
         </div>
 
         <!-- ================= DASHBOARD VIEW ================= -->
-        <div id="dashboardView" class="container mx-auto hidden">
+        <div id="dashboardView" class="container mx-auto hidden w-full">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-primary"><i class="fa-solid fa-layer-group mr-2"></i> ห้องเรียนของคุณ</h2>
                 <button onclick="window.createClass()" class="bg-secondary hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition shadow-md flex items-center gap-2">
@@ -120,7 +148,7 @@
         </div>
 
         <!-- ================= CLASS DETAIL VIEW ================= -->
-        <div id="classDetailView" class="container mx-auto hidden">
+        <div id="classDetailView" class="container mx-auto hidden w-full">
             <!-- Header -->
             <div class="bg-white rounded-xl shadow-md p-6 mb-6 border-l-4 border-secondary flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -161,8 +189,8 @@
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-blue-50 text-gray-600 border-b">
-                                        <th class="p-3 w-16 text-center">ลำดับ</th>
-                                        <th class="p-3">รหัสนักเรียน</th>
+                                        <th class="p-3 w-20 text-center">เลขที่</th>
+                                        <th class="p-3 w-32">รหัสนักเรียน</th>
                                         <th class="p-3">ชื่อ-นามสกุล</th>
                                         <th class="p-3 text-center w-24">จัดการ</th>
                                     </tr>
@@ -203,7 +231,7 @@
                     <div id="content-grading" class="tab-content hidden">
                         <div class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
                             <label class="block text-sm font-bold text-gray-700 mb-2">เลือกงานที่ต้องการบันทึกคะแนน</label>
-                            <select id="taskSelect" onchange="window.loadGradingTable()" class="w-full md:w-1/2 p-2 border border-gray-300 rounded-lg outline-none focus:border-secondary focus:ring-1 focus:ring-secondary">
+                            <select id="taskSelect" onchange="window.loadGradingTable()" class="w-full md:w-1/2 p-2.5 border border-gray-300 rounded-lg outline-none focus:border-secondary focus:ring-2 focus:ring-secondary transition">
                                 <option value="">-- กรุณาเลือกงาน --</option>
                             </select>
                         </div>
@@ -211,12 +239,12 @@
                         <div id="gradingArea" class="hidden overflow-x-auto">
                             <div class="flex justify-between items-end mb-2">
                                 <h3 class="font-bold text-primary" id="gradingTaskName"></h3>
-                                <span class="bg-accent text-primary px-3 py-1 rounded-full text-sm font-bold" id="gradingMaxScore"></span>
+                                <span class="bg-accent text-primary px-3 py-1 rounded-full text-sm font-bold shadow-sm" id="gradingMaxScore"></span>
                             </div>
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-gray-100 text-gray-600 border-b">
-                                        <th class="p-3 w-16 text-center">ลำดับ</th>
+                                        <th class="p-3 w-20 text-center">เลขที่</th>
                                         <th class="p-3 w-32">รหัส</th>
                                         <th class="p-3">ชื่อ-นามสกุล</th>
                                         <th class="p-3 text-center w-40">คะแนนที่ได้</th>
@@ -227,9 +255,9 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div id="noTaskSelectedMsg" class="text-center py-8 text-gray-400">
-                            <i class="fa-solid fa-arrow-up text-2xl mb-2"></i>
-                            <p>เลืองานด้านบนเพื่อเริ่มบันทึกคะแนน</p>
+                        <div id="noTaskSelectedMsg" class="text-center py-10 text-gray-400 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                            <i class="fa-solid fa-arrow-up text-3xl mb-3 text-gray-300"></i>
+                            <p>เลือกงานด้านบนเพื่อเริ่มบันทึกคะแนน</p>
                         </div>
                     </div>
 
@@ -307,7 +335,7 @@
         let studentsCache = {};
         let tasksCache = {};
 
-        // Active Listeners (เพื่อเคลียร์การทำงานเมื่อเปลี่ยนหน้า)
+        // Active Listeners
         let activeListeners = [];
 
         // ================= UI HELPERS =================
@@ -323,15 +351,40 @@
             Swal.fire({ title: 'กำลังประมวลผล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
         }
 
+        function escapeQuote(str) {
+            return (str || '').replace(/'/g, "\\'");
+        }
+
+        function getSortedStudents() {
+            const studentsArray = Object.keys(studentsCache).map(id => ({ id, ...studentsCache[id] }));
+            return studentsArray.sort((a, b) => parseInt(a.number || 9999) - parseInt(b.number || 9999));
+        }
+
+        function getFullName(s) {
+            if (s.firstName || s.lastName) {
+                return `${s.prefix || ''} ${s.firstName || ''} ${s.lastName || ''}`.trim();
+            }
+            return s.name || '';
+        }
+
         // ================= AUTHENTICATION =================
         window.toggleAuthMode = () => {
             isLoginMode = !isLoginMode;
+            
+            // Update Texts
+            document.getElementById('authTitle').innerText = isLoginMode ? 'เข้าสู่ระบบ' : 'สร้างบัญชีใหม่';
+            document.getElementById('authSubtitle').innerText = isLoginMode ? 'ยินดีต้อนรับกลับมา! กรุณากรอกข้อมูลของคุณ' : 'เริ่มต้นจัดการห้องเรียนของคุณได้อย่างง่ายดาย';
             document.getElementById('authBtn').innerText = isLoginMode ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
             document.getElementById('authToggleText').innerText = isLoginMode ? 'ยังไม่มีบัญชีใช่หรือไม่?' : 'มีบัญชีอยู่แล้วใช่หรือไม่?';
             document.getElementById('authToggleLink').innerText = isLoginMode ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
-            document.getElementById('authBtn').className = isLoginMode 
-                ? "w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg"
-                : "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg";
+            
+            // Update Button Styling based on mode
+            const btn = document.getElementById('authBtn');
+            if (isLoginMode) {
+                btn.className = "w-full bg-gradient-to-r from-primary to-secondary hover:from-blue-800 hover:to-blue-600 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mt-4";
+            } else {
+                btn.className = "w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mt-4";
+            }
         };
 
         window.handleAuth = async () => {
@@ -442,17 +495,22 @@
                     const classes = snapshot.val();
                     for (const id in classes) {
                         const c = classes[id];
+                        const subjectCodeBadge = c.subjectCode 
+                            ? `<div class="inline-block bg-accent text-secondary text-xs font-bold px-2 py-1 rounded mb-2 border border-blue-200"><i class="fa-solid fa-tag mr-1"></i> ${c.subjectCode}</div>` 
+                            : '';
+
                         const card = `
                             <div class="bg-white rounded-xl shadow hover:shadow-lg transition border-t-4 border-secondary p-5 flex flex-col justify-between h-full">
                                 <div>
+                                    ${subjectCodeBadge}
                                     <h3 class="text-xl font-bold text-primary mb-2 line-clamp-2">${c.name}</h3>
                                     <p class="text-gray-500 text-sm mb-4"><i class="fa-regular fa-calendar text-xs"></i> สร้างเมื่อ: ${new Date(c.createdAt).toLocaleDateString('th-TH')}</p>
                                 </div>
                                 <div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">
-                                    <button onclick="window.openClass('${id}', '${c.name.replace(/'/g, "\\'")}')" class="flex-1 bg-accent text-primary hover:bg-secondary hover:text-white font-medium py-2 rounded-lg transition text-sm">
+                                    <button onclick="window.openClass('${id}', '${escapeQuote(c.name)}', '${escapeQuote(c.subjectCode)}')" class="flex-1 bg-accent text-primary hover:bg-secondary hover:text-white font-medium py-2 rounded-lg transition text-sm">
                                         <i class="fa-solid fa-folder-open"></i> จัดการ
                                     </button>
-                                    <button onclick="window.editClass('${id}', '${c.name.replace(/'/g, "\\'")}')" class="bg-gray-100 text-gray-600 hover:bg-yellow-100 hover:text-yellow-600 px-3 py-2 rounded-lg transition">
+                                    <button onclick="window.editClass('${id}', '${escapeQuote(c.name)}', '${escapeQuote(c.subjectCode)}')" class="bg-gray-100 text-gray-600 hover:bg-yellow-100 hover:text-yellow-600 px-3 py-2 rounded-lg transition">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button onclick="window.deleteClass('${id}')" class="bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 px-3 py-2 rounded-lg transition">
@@ -471,23 +529,43 @@
         }
 
         window.createClass = async () => {
-            const { value: className } = await Swal.fire({
+            const { value: formValues } = await Swal.fire({
                 title: 'สร้างห้องเรียนใหม่',
-                input: 'text',
-                inputLabel: 'ชื่อวิชา / ชื่อห้องเรียน',
-                inputPlaceholder: 'เช่น คณิตศาสตร์ ป.4/1',
+                html: `
+                    <div class="text-left mt-2">
+                        <div class="mb-4">
+                            <label class="text-sm font-bold text-gray-700">รหัสวิชา <span class="text-gray-400 font-normal">(ถ้ามี)</span></label>
+                            <input id="swal-subject-code" class="w-full p-2 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-secondary outline-none" placeholder="เช่น ว10101">
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700">ชื่อวิชา / ชื่อห้องเรียน <span class="text-red-500">*</span></label>
+                            <input id="swal-class-name" class="w-full p-2 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-secondary outline-none" placeholder="เช่น วิทยาศาสตร์ ป.4/1">
+                        </div>
+                    </div>
+                `,
+                focusConfirm: false,
                 showCancelButton: true,
-                confirmButtonText: 'สร้าง',
+                confirmButtonText: 'สร้างห้องเรียน',
                 cancelButtonText: 'ยกเลิก',
-                inputValidator: (value) => { if (!value) return 'กรุณาระบุชื่อห้องเรียน!' }
+                preConfirm: () => {
+                    const subjectCode = document.getElementById('swal-subject-code').value.trim();
+                    const className = document.getElementById('swal-class-name').value.trim();
+                    
+                    if (!className) {
+                        Swal.showValidationMessage('กรุณาระบุชื่อห้องเรียน!');
+                        return false;
+                    }
+                    return { subjectCode, className };
+                }
             });
 
-            if (className) {
+            if (formValues) {
                 try {
                     const classListRef = ref(db, `users/${currentUser.uid}/classes`);
                     const newClassRef = push(classListRef);
                     await set(newClassRef, {
-                        name: className,
+                        subjectCode: formValues.subjectCode,
+                        name: formValues.className,
                         createdAt: Date.now()
                     });
                     Toast.fire({ icon: 'success', title: 'สร้างห้องเรียนสำเร็จ' });
@@ -497,20 +575,45 @@
             }
         };
 
-        window.editClass = async (id, oldName) => {
-            const { value: newName } = await Swal.fire({
-                title: 'แก้ไขชื่อห้องเรียน',
-                input: 'text',
-                inputValue: oldName,
+        window.editClass = async (id, oldName, oldSubjectCode) => {
+            const sCode = (oldSubjectCode === 'undefined' || !oldSubjectCode) ? '' : oldSubjectCode;
+            
+            const { value: formValues } = await Swal.fire({
+                title: 'แก้ไขข้อมูลห้องเรียน',
+                html: `
+                    <div class="text-left mt-2">
+                        <div class="mb-4">
+                            <label class="text-sm font-bold text-gray-700">รหัสวิชา <span class="text-gray-400 font-normal">(ถ้ามี)</span></label>
+                            <input id="swal-edit-subject-code" class="w-full p-2 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-secondary outline-none" value="${sCode}" placeholder="เช่น ว10101">
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700">ชื่อวิชา / ชื่อห้องเรียน <span class="text-red-500">*</span></label>
+                            <input id="swal-edit-class-name" class="w-full p-2 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-secondary outline-none" value="${oldName}" placeholder="เช่น วิทยาศาสตร์ ป.4/1">
+                        </div>
+                    </div>
+                `,
+                focusConfirm: false,
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
-                inputValidator: (value) => { if (!value) return 'กรุณาระบุชื่อห้องเรียน!' }
+                preConfirm: () => {
+                    const subjectCode = document.getElementById('swal-edit-subject-code').value.trim();
+                    const className = document.getElementById('swal-edit-class-name').value.trim();
+                    
+                    if (!className) {
+                        Swal.showValidationMessage('กรุณาระบุชื่อห้องเรียน!');
+                        return false;
+                    }
+                    return { subjectCode, className };
+                }
             });
 
-            if (newName && newName !== oldName) {
+            if (formValues) {
                 try {
-                    await update(ref(db, `users/${currentUser.uid}/classes/${id}`), { name: newName });
+                    await update(ref(db, `users/${currentUser.uid}/classes/${id}`), { 
+                        subjectCode: formValues.subjectCode,
+                        name: formValues.className 
+                    });
                     Toast.fire({ icon: 'success', title: 'อัปเดตข้อมูลสำเร็จ' });
                 } catch (e) {
                     Swal.fire('Error', e.message, 'error');
@@ -531,7 +634,6 @@
 
             if (result.isConfirmed) {
                 try {
-                    // ลบทุกอย่างที่เกี่ยวกับ class นี้ (Classes, Students, Tasks, Scores)
                     const updates = {};
                     updates[`users/${currentUser.uid}/classes/${id}`] = null;
                     updates[`users/${currentUser.uid}/students/${id}`] = null;
@@ -546,12 +648,17 @@
             }
         };
 
-        window.openClass = (id, name) => {
+        window.openClass = (id, name, subjectCode) => {
             currentClassId = id;
-            document.getElementById('detailClassName').innerText = name;
+            
+            let displayTitle = name;
+            if (subjectCode && subjectCode !== 'undefined' && subjectCode.trim() !== '') {
+                displayTitle = `[${subjectCode}] ${name}`;
+            }
+            
+            document.getElementById('detailClassName').innerText = displayTitle;
             showView('classDetail');
             
-            // โหลดข้อมูลภายในห้อง
             loadStudents();
             loadTasks();
         };
@@ -568,26 +675,25 @@
                 
                 if (snapshot.exists()) {
                     studentsCache = snapshot.val();
-                    let index = 1;
-                    for (const id in studentsCache) {
-                        const s = studentsCache[id];
+                    const sortedStudents = getSortedStudents();
+                    
+                    sortedStudents.forEach(s => {
                         tbody.innerHTML += `
                             <tr class="border-b hover:bg-gray-50 transition">
-                                <td class="p-3 text-center">${index++}</td>
-                                <td class="p-3 font-medium">${s.studentCode}</td>
-                                <td class="p-3">${s.name}</td>
+                                <td class="p-3 text-center font-bold text-gray-700">${s.number || '-'}</td>
+                                <td class="p-3 font-medium text-gray-600">${s.studentCode || '-'}</td>
+                                <td class="p-3">${getFullName(s)}</td>
                                 <td class="p-3 text-center">
-                                    <button onclick="window.editStudent('${id}', '${s.studentCode}', '${s.name}')" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                                    <button onclick="window.deleteStudent('${id}')" class="text-red-500 hover:text-red-700 mx-1"><i class="fa-solid fa-trash-can"></i></button>
+                                    <button onclick="window.editStudent('${s.id}')" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="window.deleteStudent('${s.id}')" class="text-red-500 hover:text-red-700 mx-1"><i class="fa-solid fa-trash-can"></i></button>
                                 </td>
                             </tr>
                         `;
-                    }
+                    });
                 } else {
                     tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">ยังไม่มีข้อมูลนักเรียน</td></tr>`;
                 }
                 
-                // Refresh grading/summary if they are active
                 if(document.getElementById('content-grading').classList.contains('block')) window.loadGradingTable();
                 if(document.getElementById('content-summary').classList.contains('block')) window.loadSummary();
             });
@@ -597,58 +703,165 @@
         window.addStudent = async () => {
             const { value: formValues } = await Swal.fire({
                 title: 'เพิ่มข้อมูลนักเรียน',
-                html:
-                    `<input id="swal-input1" class="swal2-input" placeholder="รหัสนักเรียน (เช่น 101)">` +
-                    `<input id="swal-input2" class="swal2-input" placeholder="ชื่อ-นามสกุล">`,
+                width: '600px',
+                html: `
+                    <div class="text-left mb-4 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <p class="font-bold text-primary mb-2"><i class="fa-solid fa-file-excel mr-1"></i> คัดลอกและวางจาก Excel</p>
+                        <p class="text-xs text-gray-600 mb-2">จัดเรียง 5 คอลัมน์: <span class="bg-white border px-1 rounded font-mono">เลขที่ | รหัส | คำนำหน้า | ชื่อ | สกุล</span></p>
+                        <textarea id="swal-excel-paste" class="w-full h-32 p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-secondary outline-none" placeholder="วางข้อมูลจาก Excel ลงที่นี่..."></textarea>
+                    </div>
+                    
+                    <div class="flex items-center my-4">
+                        <div class="flex-grow border-t border-gray-300"></div>
+                        <span class="px-3 text-gray-500 text-sm font-medium">หรือ เพิ่มทีละคน</span>
+                        <div class="flex-grow border-t border-gray-300"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-left">
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">เลขที่</label>
+                            <input id="swal-num" type="number" class="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 outline-none" placeholder="เช่น 1">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">รหัสนักเรียน</label>
+                            <input id="swal-code" class="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 outline-none" placeholder="เช่น 64001">
+                        </div>
+                        <div class="col-span-2 grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-xs font-bold text-gray-600">คำนำหน้า</label>
+                                <input id="swal-prefix" class="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 outline-none" placeholder="เช่น ด.ช.">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-600">ชื่อ</label>
+                                <input id="swal-fname" class="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 outline-none" placeholder="ชื่อจริง">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-600">สกุล</label>
+                                <input id="swal-lname" class="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 outline-none" placeholder="นามสกุล">
+                            </div>
+                        </div>
+                    </div>
+                `,
                 focusConfirm: false,
                 showCancelButton: true,
-                confirmButtonText: 'บันทึก',
+                confirmButtonText: '<i class="fa-solid fa-save"></i> บันทึกข้อมูล',
                 cancelButtonText: 'ยกเลิก',
                 preConfirm: () => {
-                    const code = document.getElementById('swal-input1').value;
-                    const name = document.getElementById('swal-input2').value;
-                    if(!code || !name) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบ'); return false; }
-                    return { code, name }
+                    const excelData = document.getElementById('swal-excel-paste').value;
+                    const num = document.getElementById('swal-num').value;
+                    const code = document.getElementById('swal-code').value;
+                    const prefix = document.getElementById('swal-prefix').value;
+                    const fname = document.getElementById('swal-fname').value;
+                    const lname = document.getElementById('swal-lname').value;
+
+                    if (excelData.trim() !== '') {
+                        return { type: 'excel', data: excelData };
+                    } else if (fname.trim() !== '') {
+                        return { type: 'single', data: { number: num, studentCode: code, prefix, firstName: fname, lastName: lname } };
+                    } else {
+                        Swal.showValidationMessage('กรุณาวางข้อมูลจาก Excel หรือกรอก ชื่อนักเรียน เพื่อเพิ่มทีละคน');
+                        return false;
+                    }
                 }
             });
 
             if (formValues) {
+                showLoading();
+                const refList = ref(db, `users/${currentUser.uid}/students/${currentClassId}`);
                 try {
-                    const refList = ref(db, `users/${currentUser.uid}/students/${currentClassId}`);
-                    await push(refList, {
-                        studentCode: formValues.code,
-                        name: formValues.name,
-                        createdAt: Date.now()
-                    });
-                    Toast.fire({ icon: 'success', title: 'เพิ่มนักเรียนสำเร็จ' });
+                    if (formValues.type === 'excel') {
+                        const rows = formValues.data.trim().split('\n');
+                        const updates = {};
+                        let count = 0;
+                        
+                        rows.forEach(row => {
+                            const cols = row.split('\t');
+                            if (cols.length >= 4 || (cols[3] && cols[3].trim() !== '')) { 
+                                const newRef = push(refList);
+                                updates[newRef.key] = {
+                                    number: cols[0] ? cols[0].trim() : '',
+                                    studentCode: cols[1] ? cols[1].trim() : '',
+                                    prefix: cols[2] ? cols[2].trim() : '',
+                                    firstName: cols[3] ? cols[3].trim() : '',
+                                    lastName: cols[4] ? cols[4].trim() : '',
+                                    createdAt: Date.now()
+                                };
+                                count++;
+                            }
+                        });
+
+                        if (count > 0) {
+                            await update(refList, updates);
+                            Swal.fire('สำเร็จ!', `เพิ่มนักเรียนจาก Excel จำนวน ${count} คน เรียบร้อยแล้ว`, 'success');
+                        } else {
+                            Swal.fire('ข้อผิดพลาด', 'ไม่พบรูปแบบข้อมูลที่ถูกต้อง (ตรวจสอบคอลัมน์ชื่อ)', 'error');
+                        }
+                    } else {
+                        await push(refList, { ...formValues.data, createdAt: Date.now() });
+                        Toast.fire({ icon: 'success', title: 'เพิ่มนักเรียนสำเร็จ' });
+                    }
                 } catch (e) { Swal.fire('Error', e.message, 'error'); }
             }
         };
 
-        window.editStudent = async (id, oldCode, oldName) => {
+        window.editStudent = async (id) => {
+            const s = studentsCache[id];
+            
+            let oldFname = s.firstName || '';
+            let oldLname = s.lastName || '';
+            if(!s.firstName && s.name) {
+                const parts = s.name.split(' ');
+                oldFname = parts[0] || '';
+                oldLname = parts.slice(1).join(' ') || '';
+            }
+
             const { value: formValues } = await Swal.fire({
                 title: 'แก้ไขข้อมูลนักเรียน',
-                html:
-                    `<input id="swal-input1" class="swal2-input" value="${oldCode}" placeholder="รหัสนักเรียน">` +
-                    `<input id="swal-input2" class="swal2-input" value="${oldName}" placeholder="ชื่อ-นามสกุล">`,
+                html: `
+                    <div class="grid grid-cols-2 gap-3 text-left">
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">เลขที่</label>
+                            <input id="edit-num" type="number" class="w-full p-2 border border-gray-300 rounded mt-1 outline-none" value="${s.number || ''}">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">รหัสนักเรียน</label>
+                            <input id="edit-code" class="w-full p-2 border border-gray-300 rounded mt-1 outline-none" value="${s.studentCode || ''}">
+                        </div>
+                        <div class="col-span-2 grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-xs font-bold text-gray-600">คำนำหน้า</label>
+                                <input id="edit-prefix" class="w-full p-2 border border-gray-300 rounded mt-1 outline-none" value="${s.prefix || ''}">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-600">ชื่อ</label>
+                                <input id="edit-fname" class="w-full p-2 border border-gray-300 rounded mt-1 outline-none" value="${oldFname}">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-600">สกุล</label>
+                                <input id="edit-lname" class="w-full p-2 border border-gray-300 rounded mt-1 outline-none" value="${oldLname}">
+                            </div>
+                        </div>
+                    </div>
+                `,
                 focusConfirm: false,
                 showCancelButton: true,
-                confirmButtonText: 'บันทึก',
+                confirmButtonText: 'บันทึกการแก้ไข',
                 cancelButtonText: 'ยกเลิก',
                 preConfirm: () => {
-                    const code = document.getElementById('swal-input1').value;
-                    const name = document.getElementById('swal-input2').value;
-                    if(!code || !name) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบ'); return false; }
-                    return { code, name }
+                    return {
+                        number: document.getElementById('edit-num').value,
+                        studentCode: document.getElementById('edit-code').value,
+                        prefix: document.getElementById('edit-prefix').value,
+                        firstName: document.getElementById('edit-fname').value,
+                        lastName: document.getElementById('edit-lname').value,
+                        name: null
+                    }
                 }
             });
 
             if (formValues) {
                 try {
-                    await update(ref(db, `users/${currentUser.uid}/students/${currentClassId}/${id}`), {
-                        studentCode: formValues.code,
-                        name: formValues.name
-                    });
+                    await update(ref(db, `users/${currentUser.uid}/students/${currentClassId}/${id}`), formValues);
                     Toast.fire({ icon: 'success', title: 'แก้ไขข้อมูลสำเร็จ' });
                 } catch (e) { Swal.fire('Error', e.message, 'error'); }
             }
@@ -667,11 +880,9 @@
 
             if (result.isConfirmed) {
                 try {
-                    // ต้องลบข้อมูลใน student และคะแนนของเด็กคนนี้ในทุกงาน
                     const updates = {};
                     updates[`users/${currentUser.uid}/students/${currentClassId}/${studentId}`] = null;
                     
-                    // หากต้องการคลีนคะแนนด้วย (Optional - but good for clean DB)
                     const scoresRef = ref(db, `users/${currentUser.uid}/scores/${currentClassId}`);
                     const scoreSnapshot = await get(scoresRef);
                     if(scoreSnapshot.exists()) {
@@ -710,7 +921,7 @@
                                 <td class="p-3 font-medium">${t.name}</td>
                                 <td class="p-3 text-center text-secondary font-bold">${t.maxScore}</td>
                                 <td class="p-3 text-center">
-                                    <button onclick="window.editTask('${id}', '${t.name}', ${t.maxScore})" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="window.editTask('${id}', '${escapeQuote(t.name)}', ${t.maxScore})" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pen-to-square"></i></button>
                                     <button onclick="window.deleteTask('${id}')" class="text-red-500 hover:text-red-700 mx-1"><i class="fa-solid fa-trash-can"></i></button>
                                 </td>
                             </tr>
@@ -720,7 +931,6 @@
                     tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">ยังไม่มีข้อมูลภาระงาน</td></tr>`;
                 }
 
-                // Update select dropdown in Grading tab
                 if(document.getElementById('content-grading').classList.contains('block')) populateTaskSelect();
             });
             activeListeners.push(unsubscribe);
@@ -801,7 +1011,7 @@
                 try {
                     const updates = {};
                     updates[`users/${currentUser.uid}/tasks/${currentClassId}/${taskId}`] = null;
-                    updates[`users/${currentUser.uid}/scores/${currentClassId}/${taskId}`] = null; // ลบคะแนนงานนี้
+                    updates[`users/${currentUser.uid}/scores/${currentClassId}/${taskId}`] = null;
                     await update(ref(db), updates);
                     Toast.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ' });
                     document.getElementById('taskSelect').value = "";
@@ -841,7 +1051,6 @@
             document.getElementById('gradingTaskName').innerText = `บันทึกคะแนน: ${task.name}`;
             document.getElementById('gradingMaxScore').innerText = `คะแนนเต็ม: ${task.maxScore}`;
 
-            // Get current scores for this task
             const scoresSnapshot = await get(ref(db, `users/${currentUser.uid}/scores/${currentClassId}/${taskId}`));
             const currentScores = scoresSnapshot.exists() ? scoresSnapshot.val() : {};
 
@@ -852,31 +1061,30 @@
                 return;
             }
 
-            let index = 1;
-            for(const studentId in studentsCache) {
-                const s = studentsCache[studentId];
-                const score = currentScores[studentId] ? currentScores[studentId].score : '';
+            const sortedStudents = getSortedStudents();
+
+            sortedStudents.forEach(s => {
+                const score = currentScores[s.id] ? currentScores[s.id].score : '';
                 
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-gray-50 transition">
-                        <td class="p-3 text-center">${index++}</td>
-                        <td class="p-3 text-sm">${s.studentCode}</td>
-                        <td class="p-3">${s.name}</td>
+                        <td class="p-3 text-center font-bold text-gray-700">${s.number || '-'}</td>
+                        <td class="p-3 text-sm text-gray-500">${s.studentCode || '-'}</td>
+                        <td class="p-3 font-medium">${getFullName(s)}</td>
                         <td class="p-3 text-center">
                             <input type="number" min="0" max="${task.maxScore}" 
-                                class="w-20 p-1 border border-gray-300 rounded text-center focus:ring-2 focus:ring-secondary outline-none" 
+                                class="w-20 p-1 border border-gray-300 rounded text-center focus:ring-2 focus:ring-secondary outline-none font-bold text-primary" 
                                 value="${score}"
                                 placeholder="-"
-                                onchange="window.saveScore('${taskId}', '${studentId}', this.value, ${task.maxScore})">
+                                onchange="window.saveScore('${taskId}', '${s.id}', this.value, ${task.maxScore})">
                         </td>
                     </tr>
                 `;
-            }
+            });
         };
 
         window.saveScore = async (taskId, studentId, scoreValue, maxScore) => {
             if(scoreValue === '') {
-                // Remove score
                 await remove(ref(db, `users/${currentUser.uid}/scores/${currentClassId}/${taskId}/${studentId}`));
                 Toast.fire({ icon: 'success', title: 'ลบคะแนนแล้ว' });
                 return;
@@ -884,7 +1092,7 @@
 
             let score = parseFloat(scoreValue);
             if(score < 0) score = 0;
-            if(score > maxScore) score = maxScore; // Cap at max score
+            if(score > maxScore) score = maxScore;
 
             try {
                 await set(ref(db, `users/${currentUser.uid}/scores/${currentClassId}/${taskId}/${studentId}`), {
@@ -893,7 +1101,6 @@
                 });
                 Toast.fire({ icon: 'success', title: 'บันทึกคะแนนแล้ว' });
                 
-                // อัปเดตค่าใน input กรณีที่ถูก cap
                 const inputs = document.querySelectorAll(`input[onchange*="${studentId}"]`);
                 if(inputs.length > 0) inputs[0].value = score;
 
@@ -911,54 +1118,52 @@
             tbody.innerHTML = '';
 
             if(Object.keys(studentsCache).length === 0) {
-                tbody.innerHTML = `<tr><td class="p-4 text-center text-gray-500">ไม่มีข้อมูล</td></tr>`;
+                tbody.innerHTML = `<tr><td class="p-4 text-center text-gray-500">ไม่มีข้อมูลนักเรียน</td></tr>`;
                 return;
             }
 
-            // Fetch all scores
             const scoresSnapshot = await get(ref(db, `users/${currentUser.uid}/scores/${currentClassId}`));
             const allScores = scoresSnapshot.exists() ? scoresSnapshot.val() : {};
 
             // Build Header
             let headerHTML = `
-                <th class="p-3 rounded-tl-lg sticky left-0 z-10 bg-primary">รหัส</th>
-                <th class="p-3 sticky left-16 z-10 bg-primary min-w-[200px]">ชื่อ-นามสกุล</th>
+                <th class="p-3 rounded-tl-lg sticky left-0 z-10 bg-primary text-center">เลขที่</th>
+                <th class="p-3 sticky left-14 md:left-20 z-10 bg-primary min-w-[200px]">ชื่อ-นามสกุล</th>
             `;
             
-            // เรียงลำดับ Task ตามวันที่สร้าง (ง่ายๆ คือใช้ loop ปกติ เพราะ push id เรียงตามเวลาอยู่แล้ว)
             let totalMaxScore = 0;
             const taskKeys = Object.keys(tasksCache);
             
             taskKeys.forEach(taskId => {
                 const t = tasksCache[taskId];
                 totalMaxScore += t.maxScore;
-                headerHTML += `<th class="p-3 text-center border-l border-blue-800"><div class="text-sm line-clamp-1">${t.name}</div><div class="text-xs text-blue-200">(${t.maxScore})</div></th>`;
+                headerHTML += `<th class="p-3 text-center border-l border-blue-800 min-w-[100px]"><div class="text-sm line-clamp-1">${t.name}</div><div class="text-xs text-blue-200">(${t.maxScore})</div></th>`;
             });
             
-            headerHTML += `<th class="p-3 text-center border-l border-blue-800 rounded-tr-lg">รวม<br><span class="text-xs text-blue-200">(${totalMaxScore})</span></th>`;
+            headerHTML += `<th class="p-3 text-center border-l border-blue-800 rounded-tr-lg min-w-[80px]">รวม<br><span class="text-xs text-blue-200">(${totalMaxScore})</span></th>`;
             thead.innerHTML = headerHTML;
 
-            // Build Body
-            for(const studentId in studentsCache) {
-                const s = studentsCache[studentId];
+            // Build Body using sorted students
+            const sortedStudents = getSortedStudents();
+
+            sortedStudents.forEach(s => {
                 let rowHTML = `
                     <tr class="border-b hover:bg-gray-100 transition">
-                        <td class="p-3 sticky left-0 z-10 bg-white border-r text-sm text-gray-500">${s.studentCode}</td>
-                        <td class="p-3 sticky left-16 z-10 bg-white border-r font-medium">${s.name}</td>
+                        <td class="p-3 sticky left-0 z-10 bg-white border-r text-center font-bold text-gray-700">${s.number || '-'}</td>
+                        <td class="p-3 sticky left-14 md:left-20 z-10 bg-white border-r font-medium">${getFullName(s)}</td>
                 `;
                 
                 let studentTotal = 0;
                 
                 taskKeys.forEach(taskId => {
                     let s_score = "-";
-                    if(allScores[taskId] && allScores[taskId][studentId]) {
-                        s_score = allScores[taskId][studentId].score;
+                    if(allScores[taskId] && allScores[taskId][s.id]) {
+                        s_score = allScores[taskId][s.id].score;
                         studentTotal += s_score;
                     }
-                    rowHTML += `<td class="p-3 text-center border-l">${s_score}</td>`;
+                    rowHTML += `<td class="p-3 text-center border-l text-gray-700">${s_score}</td>`;
                 });
 
-                // การคำนวณเปอร์เซ็นต์สำหรับสีของคะแนนรวม
                 let percent = totalMaxScore > 0 ? (studentTotal / totalMaxScore) * 100 : 0;
                 let colorClass = "text-gray-800";
                 if(percent >= 80) colorClass = "text-green-600 font-bold";
@@ -966,7 +1171,7 @@
 
                 rowHTML += `<td class="p-3 text-center border-l font-bold bg-blue-50 ${colorClass}">${studentTotal}</td></tr>`;
                 tbody.innerHTML += rowHTML;
-            }
+            });
         };
 
     </script>
