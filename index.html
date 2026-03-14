@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการห้องเรียนและบันทึกคะแนน</title>
+    
+    <!-- Google Fonts: Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        prompt: ['Prompt', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#1E3A8A', // Blue-900
+                        secondary: '#3B82F6', // Blue-500
+                        accent: '#DBEAFE', // Blue-100
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+        .tab-active { border-bottom: 2px solid #3B82F6; color: #1E3A8A; font-weight: 600; }
+        .tab-inactive { color: #6B7280; }
+        /* ซ่อนลูกศรใน input type number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+    </style>
+</head>
+<body class="bg-blue-50 text-slate-800 h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-primary text-white p-4 shadow-md hidden" id="navbar">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold"><i class="fa-solid fa-chalkboard-user mr-2"></i> ระบบจัดการห้องเรียน</h1>
+            <div class="flex items-center gap-4">
+                <span id="userEmailDisplay" class="text-sm hidden sm:block"></span>
+                <button onclick="window.logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm transition shadow">
+                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="flex-grow overflow-auto p-4 md:p-8">
+        
+        <!-- ================= AUTH VIEW ================= -->
+        <div id="authView" class="max-w-md mx-auto mt-10 bg-white p-8 rounded-2xl shadow-xl border border-blue-100">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-graduation-cap text-5xl text-secondary mb-3"></i>
+                <h2 class="text-2xl font-bold text-primary">ยินดีต้อนรับ</h2>
+                <p class="text-gray-500 text-sm">กรุณาเข้าสู่ระบบเพื่อจัดการห้องเรียน</p>
+            </div>
+
+            <form id="authForm" onsubmit="event.preventDefault(); window.handleAuth();">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-3 top-3 text-gray-400"></i>
+                        <input type="email" id="email" required class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3 top-3 text-gray-400"></i>
+                        <input type="password" id="password" required minlength="6" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none">
+                    </div>
+                </div>
+                <button type="submit" id="authBtn" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm">
+                <span id="authToggleText" class="text-gray-600">ยังไม่มีบัญชีใช่หรือไม่?</span>
+                <a href="#" onclick="window.toggleAuthMode()" id="authToggleLink" class="text-secondary font-bold hover:underline ml-1">สมัครสมาชิก</a>
+            </div>
+        </div>
+
+        <!-- ================= DASHBOARD VIEW ================= -->
+        <div id="dashboardView" class="container mx-auto hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary"><i class="fa-solid fa-layer-group mr-2"></i> ห้องเรียนของคุณ</h2>
+                <button onclick="window.createClass()" class="bg-secondary hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">สร้างห้องเรียน</span>
+                </button>
+            </div>
+
+            <!-- Class Grid -->
+            <div id="classGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Data will be populated here -->
+            </div>
+            
+            <div id="noClassMessage" class="hidden text-center py-10 text-gray-500">
+                <i class="fa-regular fa-folder-open text-4xl mb-3"></i>
+                <p>ยังไม่มีห้องเรียน กรุณาสร้างห้องเรียนใหม่</p>
+            </div>
+        </div>
+
+        <!-- ================= CLASS DETAIL VIEW ================= -->
+        <div id="classDetailView" class="container mx-auto hidden">
+            <!-- Header -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6 border-l-4 border-secondary flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <button onclick="window.showView('dashboard')" class="text-gray-500 hover:text-primary mb-2 inline-block transition">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> กลับไปหน้าหลัก
+                    </button>
+                    <h2 id="detailClassName" class="text-2xl font-bold text-primary">ชื่อวิชา</h2>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="flex border-b border-gray-200 overflow-x-auto">
+                    <button onclick="window.switchTab('students')" id="tab-students" class="flex-1 py-4 px-6 text-center tab-active whitespace-nowrap transition">
+                        <i class="fa-solid fa-users mr-2"></i> นักเรียน
+                    </button>
+                    <button onclick="window.switchTab('tasks')" id="tab-tasks" class="flex-1 py-4 px-6 text-center tab-inactive whitespace-nowrap transition">
+                        <i class="fa-solid fa-list-check mr-2"></i> ภาระงาน
+                    </button>
+                    <button onclick="window.switchTab('grading')" id="tab-grading" class="flex-1 py-4 px-6 text-center tab-inactive whitespace-nowrap transition">
+                        <i class="fa-solid fa-marker mr-2"></i> บันทึกคะแนน
+                    </button>
+                    <button onclick="window.switchTab('summary')" id="tab-summary" class="flex-1 py-4 px-6 text-center tab-inactive whitespace-nowrap transition">
+                        <i class="fa-solid fa-chart-line mr-2"></i> สรุปผล
+                    </button>
+                </div>
+
+                <div class="p-6">
+                    <!-- Tab Content: Students -->
+                    <div id="content-students" class="tab-content block">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-700">รายชื่อนักเรียน</h3>
+                            <button onclick="window.addStudent()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm transition shadow">
+                                <i class="fa-solid fa-user-plus mr-1"></i> เพิ่มนักเรียน
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-blue-50 text-gray-600 border-b">
+                                        <th class="p-3 w-16 text-center">ลำดับ</th>
+                                        <th class="p-3">รหัสนักเรียน</th>
+                                        <th class="p-3">ชื่อ-นามสกุล</th>
+                                        <th class="p-3 text-center w-24">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentTableBody">
+                                    <!-- Data -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Tasks -->
+                    <div id="content-tasks" class="tab-content hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-700">รายการภาระงาน/กิจกรรม</h3>
+                            <button onclick="window.addTask()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm transition shadow">
+                                <i class="fa-solid fa-plus mr-1"></i> เพิ่มงาน
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-blue-50 text-gray-600 border-b">
+                                        <th class="p-3 w-16 text-center">ลำดับ</th>
+                                        <th class="p-3">ชื่องาน/กิจกรรม</th>
+                                        <th class="p-3 text-center w-32">คะแนนเต็ม</th>
+                                        <th class="p-3 text-center w-24">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="taskTableBody">
+                                    <!-- Data -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Grading -->
+                    <div id="content-grading" class="tab-content hidden">
+                        <div class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">เลือกงานที่ต้องการบันทึกคะแนน</label>
+                            <select id="taskSelect" onchange="window.loadGradingTable()" class="w-full md:w-1/2 p-2 border border-gray-300 rounded-lg outline-none focus:border-secondary focus:ring-1 focus:ring-secondary">
+                                <option value="">-- กรุณาเลือกงาน --</option>
+                            </select>
+                        </div>
+
+                        <div id="gradingArea" class="hidden overflow-x-auto">
+                            <div class="flex justify-between items-end mb-2">
+                                <h3 class="font-bold text-primary" id="gradingTaskName"></h3>
+                                <span class="bg-accent text-primary px-3 py-1 rounded-full text-sm font-bold" id="gradingMaxScore"></span>
+                            </div>
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-600 border-b">
+                                        <th class="p-3 w-16 text-center">ลำดับ</th>
+                                        <th class="p-3 w-32">รหัส</th>
+                                        <th class="p-3">ชื่อ-นามสกุล</th>
+                                        <th class="p-3 text-center w-40">คะแนนที่ได้</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gradingTableBody">
+                                    <!-- Data -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noTaskSelectedMsg" class="text-center py-8 text-gray-400">
+                            <i class="fa-solid fa-arrow-up text-2xl mb-2"></i>
+                            <p>เลืองานด้านบนเพื่อเริ่มบันทึกคะแนน</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Summary -->
+                    <div id="content-summary" class="tab-content hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-700">ตารางสรุปคะแนนรวม</h3>
+                            <button onclick="window.loadSummary()" class="text-secondary hover:bg-accent px-3 py-1 rounded transition">
+                                <i class="fa-solid fa-rotate-right"></i> รีเฟรช
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse whitespace-nowrap" id="summaryTable">
+                                <thead>
+                                    <tr class="bg-primary text-white" id="summaryTableHeader">
+                                        <!-- Headers injected via JS -->
+                                    </tr>
+                                </thead>
+                                <tbody id="summaryTableBody">
+                                    <!-- Data injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK (Modular v10) via CDN -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getDatabase, 
+            ref, 
+            push, 
+            set, 
+            onValue, 
+            remove, 
+            update, 
+            get, 
+            child 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // ================= FIREBASE CONFIG =================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_s0ZwujP4wkBmGcrtbVLZokhkkzt3eJY",
+            authDomain: "health-gamification.firebaseapp.com",
+            databaseURL: "https://health-gamification-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "health-gamification",
+            storageBucket: "health-gamification.firebasestorage.app",
+            messagingSenderId: "790897875007",
+            appId: "1:790897875007:web:24d4fb17d7f6126c64408a",
+            measurementId: "G-KDE3DYRVSZ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // ================= GLOBAL STATE =================
+        let isLoginMode = true;
+        let currentUser = null;
+        let currentClassId = null;
+        
+        // Data Caches
+        let studentsCache = {};
+        let tasksCache = {};
+
+        // Active Listeners (เพื่อเคลียร์การทำงานเมื่อเปลี่ยนหน้า)
+        let activeListeners = [];
+
+        // ================= UI HELPERS =================
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+
+        function showLoading() {
+            Swal.fire({ title: 'กำลังประมวลผล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+        }
+
+        // ================= AUTHENTICATION =================
+        window.toggleAuthMode = () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authBtn').innerText = isLoginMode ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
+            document.getElementById('authToggleText').innerText = isLoginMode ? 'ยังไม่มีบัญชีใช่หรือไม่?' : 'มีบัญชีอยู่แล้วใช่หรือไม่?';
+            document.getElementById('authToggleLink').innerText = isLoginMode ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+            document.getElementById('authBtn').className = isLoginMode 
+                ? "w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg"
+                : "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg";
+        };
+
+        window.handleAuth = async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            showLoading();
+            try {
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    Toast.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ' });
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    Toast.fire({ icon: 'success', title: 'สมัครสมาชิกและเข้าสู่ระบบสำเร็จ' });
+                }
+            } catch (error) {
+                Swal.fire('ข้อผิดพลาด', _translateAuthError(error.code), 'error');
+            }
+        };
+
+        window.logout = async () => {
+            await signOut(auth);
+            clearAllListeners();
+        };
+
+        function _translateAuthError(code) {
+            switch(code) {
+                case 'auth/email-already-in-use': return 'อีเมลนี้ถูกใช้งานแล้ว';
+                case 'auth/invalid-email': return 'รูปแบบอีเมลไม่ถูกต้อง';
+                case 'auth/weak-password': return 'รหัสผ่านอ่อนเกินไป (ขั้นต่ำ 6 ตัวอักษร)';
+                case 'auth/user-not-found': 
+                case 'auth/wrong-password': 
+                case 'auth/invalid-credential': return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+                default: return code;
+            }
+        }
+
+        // Auth State Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                document.getElementById('navbar').classList.remove('hidden');
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                Swal.close();
+                showView('dashboard');
+                loadClasses();
+            } else {
+                currentUser = null;
+                currentClassId = null;
+                document.getElementById('navbar').classList.add('hidden');
+                showView('auth');
+            }
+        });
+
+        // ================= NAVIGATION =================
+        window.showView = (viewName) => {
+            document.getElementById('authView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('classDetailView').classList.add('hidden');
+            
+            if(viewName === 'auth') document.getElementById('authView').classList.remove('hidden');
+            if(viewName === 'dashboard') {
+                document.getElementById('dashboardView').classList.remove('hidden');
+                currentClassId = null;
+                clearAllListeners();
+                loadClasses();
+            }
+            if(viewName === 'classDetail') {
+                document.getElementById('classDetailView').classList.remove('hidden');
+                window.switchTab('students');
+            }
+        };
+
+        window.switchTab = (tabName) => {
+            const tabs = ['students', 'tasks', 'grading', 'summary'];
+            tabs.forEach(t => {
+                document.getElementById(`tab-${t}`).classList.remove('tab-active');
+                document.getElementById(`tab-${t}`).classList.add('tab-inactive');
+                document.getElementById(`content-${t}`).classList.add('hidden');
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('tab-inactive');
+            document.getElementById(`tab-${tabName}`).classList.add('tab-active');
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+
+            if(tabName === 'grading') populateTaskSelect();
+            if(tabName === 'summary') window.loadSummary();
+        };
+
+        function clearAllListeners() {
+            activeListeners.forEach(unsubscribe => unsubscribe());
+            activeListeners = [];
+        }
+
+        // ================= MODULE 1: CLASSROOM MANAGEMENT =================
+        function loadClasses() {
+            if(!currentUser) return;
+            const classesRef = ref(db, `users/${currentUser.uid}/classes`);
+            
+            const unsubscribe = onValue(classesRef, (snapshot) => {
+                const classGrid = document.getElementById('classGrid');
+                const noClassMsg = document.getElementById('noClassMessage');
+                classGrid.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    noClassMsg.classList.add('hidden');
+                    const classes = snapshot.val();
+                    for (const id in classes) {
+                        const c = classes[id];
+                        const card = `
+                            <div class="bg-white rounded-xl shadow hover:shadow-lg transition border-t-4 border-secondary p-5 flex flex-col justify-between h-full">
+                                <div>
+                                    <h3 class="text-xl font-bold text-primary mb-2 line-clamp-2">${c.name}</h3>
+                                    <p class="text-gray-500 text-sm mb-4"><i class="fa-regular fa-calendar text-xs"></i> สร้างเมื่อ: ${new Date(c.createdAt).toLocaleDateString('th-TH')}</p>
+                                </div>
+                                <div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                                    <button onclick="window.openClass('${id}', '${c.name.replace(/'/g, "\\'")}')" class="flex-1 bg-accent text-primary hover:bg-secondary hover:text-white font-medium py-2 rounded-lg transition text-sm">
+                                        <i class="fa-solid fa-folder-open"></i> จัดการ
+                                    </button>
+                                    <button onclick="window.editClass('${id}', '${c.name.replace(/'/g, "\\'")}')" class="bg-gray-100 text-gray-600 hover:bg-yellow-100 hover:text-yellow-600 px-3 py-2 rounded-lg transition">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="window.deleteClass('${id}')" class="bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 px-3 py-2 rounded-lg transition">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        classGrid.innerHTML += card;
+                    }
+                } else {
+                    noClassMsg.classList.remove('hidden');
+                }
+            });
+            activeListeners.push(unsubscribe);
+        }
+
+        window.createClass = async () => {
+            const { value: className } = await Swal.fire({
+                title: 'สร้างห้องเรียนใหม่',
+                input: 'text',
+                inputLabel: 'ชื่อวิชา / ชื่อห้องเรียน',
+                inputPlaceholder: 'เช่น คณิตศาสตร์ ป.4/1',
+                showCancelButton: true,
+                confirmButtonText: 'สร้าง',
+                cancelButtonText: 'ยกเลิก',
+                inputValidator: (value) => { if (!value) return 'กรุณาระบุชื่อห้องเรียน!' }
+            });
+
+            if (className) {
+                try {
+                    const classListRef = ref(db, `users/${currentUser.uid}/classes`);
+                    const newClassRef = push(classListRef);
+                    await set(newClassRef, {
+                        name: className,
+                        createdAt: Date.now()
+                    });
+                    Toast.fire({ icon: 'success', title: 'สร้างห้องเรียนสำเร็จ' });
+                } catch (e) {
+                    Swal.fire('Error', e.message, 'error');
+                }
+            }
+        };
+
+        window.editClass = async (id, oldName) => {
+            const { value: newName } = await Swal.fire({
+                title: 'แก้ไขชื่อห้องเรียน',
+                input: 'text',
+                inputValue: oldName,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                inputValidator: (value) => { if (!value) return 'กรุณาระบุชื่อห้องเรียน!' }
+            });
+
+            if (newName && newName !== oldName) {
+                try {
+                    await update(ref(db, `users/${currentUser.uid}/classes/${id}`), { name: newName });
+                    Toast.fire({ icon: 'success', title: 'อัปเดตข้อมูลสำเร็จ' });
+                } catch (e) {
+                    Swal.fire('Error', e.message, 'error');
+                }
+            }
+        };
+
+        window.deleteClass = async (id) => {
+            const result = await Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "ข้อมูลนักเรียน ภาระงาน และคะแนนในห้องนี้จะถูกลบทั้งหมด!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'ใช่, ลบเลย!',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    // ลบทุกอย่างที่เกี่ยวกับ class นี้ (Classes, Students, Tasks, Scores)
+                    const updates = {};
+                    updates[`users/${currentUser.uid}/classes/${id}`] = null;
+                    updates[`users/${currentUser.uid}/students/${id}`] = null;
+                    updates[`users/${currentUser.uid}/tasks/${id}`] = null;
+                    updates[`users/${currentUser.uid}/scores/${id}`] = null;
+                    
+                    await update(ref(db), updates);
+                    Swal.fire('ลบสำเร็จ!', 'ห้องเรียนถูกลบแล้ว', 'success');
+                } catch (e) {
+                    Swal.fire('Error', e.message, 'error');
+                }
+            }
+        };
+
+        window.openClass = (id, name) => {
+            currentClassId = id;
+            document.getElementById('detailClassName').innerText = name;
+            showView('classDetail');
+            
+            // โหลดข้อมูลภายในห้อง
+            loadStudents();
+            loadTasks();
+        };
+
+        // ================= MODULE 2: STUDENT MANAGEMENT =================
+        function loadStudents() {
+            if(!currentClassId) return;
+            const studentsRef = ref(db, `users/${currentUser.uid}/students/${currentClassId}`);
+            
+            const unsubscribe = onValue(studentsRef, (snapshot) => {
+                const tbody = document.getElementById('studentTableBody');
+                tbody.innerHTML = '';
+                studentsCache = {};
+                
+                if (snapshot.exists()) {
+                    studentsCache = snapshot.val();
+                    let index = 1;
+                    for (const id in studentsCache) {
+                        const s = studentsCache[id];
+                        tbody.innerHTML += `
+                            <tr class="border-b hover:bg-gray-50 transition">
+                                <td class="p-3 text-center">${index++}</td>
+                                <td class="p-3 font-medium">${s.studentCode}</td>
+                                <td class="p-3">${s.name}</td>
+                                <td class="p-3 text-center">
+                                    <button onclick="window.editStudent('${id}', '${s.studentCode}', '${s.name}')" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="window.deleteStudent('${id}')" class="text-red-500 hover:text-red-700 mx-1"><i class="fa-solid fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">ยังไม่มีข้อมูลนักเรียน</td></tr>`;
+                }
+                
+                // Refresh grading/summary if they are active
+                if(document.getElementById('content-grading').classList.contains('block')) window.loadGradingTable();
+                if(document.getElementById('content-summary').classList.contains('block')) window.loadSummary();
+            });
+            activeListeners.push(unsubscribe);
+        }
+
+        window.addStudent = async () => {
+            const { value: formValues } = await Swal.fire({
+                title: 'เพิ่มข้อมูลนักเรียน',
+                html:
+                    `<input id="swal-input1" class="swal2-input" placeholder="รหัสนักเรียน (เช่น 101)">` +
+                    `<input id="swal-input2" class="swal2-input" placeholder="ชื่อ-นามสกุล">`,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                preConfirm: () => {
+                    const code = document.getElementById('swal-input1').value;
+                    const name = document.getElementById('swal-input2').value;
+                    if(!code || !name) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบ'); return false; }
+                    return { code, name }
+                }
+            });
+
+            if (formValues) {
+                try {
+                    const refList = ref(db, `users/${currentUser.uid}/students/${currentClassId}`);
+                    await push(refList, {
+                        studentCode: formValues.code,
+                        name: formValues.name,
+                        createdAt: Date.now()
+                    });
+                    Toast.fire({ icon: 'success', title: 'เพิ่มนักเรียนสำเร็จ' });
+                } catch (e) { Swal.fire('Error', e.message, 'error'); }
+            }
+        };
+
+        window.editStudent = async (id, oldCode, oldName) => {
+            const { value: formValues } = await Swal.fire({
+                title: 'แก้ไขข้อมูลนักเรียน',
+                html:
+                    `<input id="swal-input1" class="swal2-input" value="${oldCode}" placeholder="รหัสนักเรียน">` +
+                    `<input id="swal-input2" class="swal2-input" value="${oldName}" placeholder="ชื่อ-นามสกุล">`,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                preConfirm: () => {
+                    const code = document.getElementById('swal-input1').value;
+                    const name = document.getElementById('swal-input2').value;
+                    if(!code || !name) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบ'); return false; }
+                    return { code, name }
+                }
+            });
+
+            if (formValues) {
+                try {
+                    await update(ref(db, `users/${currentUser.uid}/students/${currentClassId}/${id}`), {
+                        studentCode: formValues.code,
+                        name: formValues.name
+                    });
+                    Toast.fire({ icon: 'success', title: 'แก้ไขข้อมูลสำเร็จ' });
+                } catch (e) { Swal.fire('Error', e.message, 'error'); }
+            }
+        };
+
+        window.deleteStudent = async (studentId) => {
+            const result = await Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "ลบนักเรียนคนนี้ออกจากห้องเรียน?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    // ต้องลบข้อมูลใน student และคะแนนของเด็กคนนี้ในทุกงาน
+                    const updates = {};
+                    updates[`users/${currentUser.uid}/students/${currentClassId}/${studentId}`] = null;
+                    
+                    // หากต้องการคลีนคะแนนด้วย (Optional - but good for clean DB)
+                    const scoresRef = ref(db, `users/${currentUser.uid}/scores/${currentClassId}`);
+                    const scoreSnapshot = await get(scoresRef);
+                    if(scoreSnapshot.exists()) {
+                        const scores = scoreSnapshot.val();
+                        for(const taskId in scores) {
+                            if(scores[taskId][studentId]) {
+                                updates[`users/${currentUser.uid}/scores/${currentClassId}/${taskId}/${studentId}`] = null;
+                            }
+                        }
+                    }
+
+                    await update(ref(db), updates);
+                    Toast.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ' });
+                } catch (e) { Swal.fire('Error', e.message, 'error'); }
+            }
+        };
+
+        // ================= MODULE 3: TASK MANAGEMENT =================
+        function loadTasks() {
+            if(!currentClassId) return;
+            const tasksRef = ref(db, `users/${currentUser.uid}/tasks/${currentClassId}`);
+            
+            const unsubscribe = onValue(tasksRef, (snapshot) => {
+                const tbody = document.getElementById('taskTableBody');
+                tbody.innerHTML = '';
+                tasksCache = {};
+                
+                if (snapshot.exists()) {
+                    tasksCache = snapshot.val();
+                    let index = 1;
+                    for (const id in tasksCache) {
+                        const t = tasksCache[id];
+                        tbody.innerHTML += `
+                            <tr class="border-b hover:bg-gray-50 transition">
+                                <td class="p-3 text-center">${index++}</td>
+                                <td class="p-3 font-medium">${t.name}</td>
+                                <td class="p-3 text-center text-secondary font-bold">${t.maxScore}</td>
+                                <td class="p-3 text-center">
+                                    <button onclick="window.editTask('${id}', '${t.name}', ${t.maxScore})" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="window.deleteTask('${id}')" class="text-red-500 hover:text-red-700 mx-1"><i class="fa-solid fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">ยังไม่มีข้อมูลภาระงาน</td></tr>`;
+                }
+
+                // Update select dropdown in Grading tab
+                if(document.getElementById('content-grading').classList.contains('block')) populateTaskSelect();
+            });
+            activeListeners.push(unsubscribe);
+        }
+
+        window.addTask = async () => {
+            const { value: formValues } = await Swal.fire({
+                title: 'เพิ่มภาระงาน/กิจกรรม',
+                html:
+                    `<input id="taskName" class="swal2-input" placeholder="ชื่องาน (เช่น ใบงานที่ 1)">` +
+                    `<input id="taskScore" type="number" min="1" class="swal2-input" placeholder="คะแนนเต็ม">`,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                preConfirm: () => {
+                    const name = document.getElementById('taskName').value;
+                    const score = parseInt(document.getElementById('taskScore').value);
+                    if(!name || !score || score <= 0) { Swal.showValidationMessage('กรุณากรอกชื่องานและคะแนนเต็ม(>0)'); return false; }
+                    return { name, score }
+                }
+            });
+
+            if (formValues) {
+                try {
+                    const refList = ref(db, `users/${currentUser.uid}/tasks/${currentClassId}`);
+                    await push(refList, {
+                        name: formValues.name,
+                        maxScore: formValues.score,
+                        createdAt: Date.now()
+                    });
+                    Toast.fire({ icon: 'success', title: 'เพิ่มงานสำเร็จ' });
+                } catch (e) { Swal.fire('Error', e.message, 'error'); }
+            }
+        };
+
+        window.editTask = async (id, oldName, oldScore) => {
+            const { value: formValues } = await Swal.fire({
+                title: 'แก้ไขภาระงาน',
+                html:
+                    `<input id="taskName" class="swal2-input" value="${oldName}" placeholder="ชื่องาน">` +
+                    `<input id="taskScore" type="number" min="1" value="${oldScore}" class="swal2-input" placeholder="คะแนนเต็ม">`,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                preConfirm: () => {
+                    const name = document.getElementById('taskName').value;
+                    const score = parseInt(document.getElementById('taskScore').value);
+                    if(!name || !score || score <= 0) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ถูกต้อง'); return false; }
+                    return { name, score }
+                }
+            });
+
+            if (formValues) {
+                try {
+                    await update(ref(db, `users/${currentUser.uid}/tasks/${currentClassId}/${id}`), {
+                        name: formValues.name,
+                        maxScore: formValues.score
+                    });
+                    Toast.fire({ icon: 'success', title: 'แก้ไขสำเร็จ' });
+                } catch (e) { Swal.fire('Error', e.message, 'error'); }
+            }
+        };
+
+        window.deleteTask = async (taskId) => {
+            const result = await Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "คะแนนของงานนี้จะถูกลบทั้งหมด!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const updates = {};
+                    updates[`users/${currentUser.uid}/tasks/${currentClassId}/${taskId}`] = null;
+                    updates[`users/${currentUser.uid}/scores/${currentClassId}/${taskId}`] = null; // ลบคะแนนงานนี้
+                    await update(ref(db), updates);
+                    Toast.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ' });
+                    document.getElementById('taskSelect').value = "";
+                    window.loadGradingTable();
+                } catch (e) { Swal.fire('Error', e.message, 'error'); }
+            }
+        };
+
+        // ================= MODULE 4: GRADING SYSTEM =================
+        function populateTaskSelect() {
+            const select = document.getElementById('taskSelect');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">-- กรุณาเลือกงาน --</option>';
+            
+            for(const taskId in tasksCache) {
+                select.innerHTML += `<option value="${taskId}">${tasksCache[taskId].name} (เต็ม ${tasksCache[taskId].maxScore})</option>`;
+            }
+            if(tasksCache[currentValue]) select.value = currentValue;
+        }
+
+        window.loadGradingTable = async () => {
+            const taskId = document.getElementById('taskSelect').value;
+            const area = document.getElementById('gradingArea');
+            const noMsg = document.getElementById('noTaskSelectedMsg');
+            const tbody = document.getElementById('gradingTableBody');
+            
+            if(!taskId) {
+                area.classList.add('hidden');
+                noMsg.classList.remove('hidden');
+                return;
+            }
+
+            area.classList.remove('hidden');
+            noMsg.classList.add('hidden');
+            
+            const task = tasksCache[taskId];
+            document.getElementById('gradingTaskName').innerText = `บันทึกคะแนน: ${task.name}`;
+            document.getElementById('gradingMaxScore').innerText = `คะแนนเต็ม: ${task.maxScore}`;
+
+            // Get current scores for this task
+            const scoresSnapshot = await get(ref(db, `users/${currentUser.uid}/scores/${currentClassId}/${taskId}`));
+            const currentScores = scoresSnapshot.exists() ? scoresSnapshot.val() : {};
+
+            tbody.innerHTML = '';
+            
+            if(Object.keys(studentsCache).length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">ยังไม่มีนักเรียนในห้องนี้</td></tr>`;
+                return;
+            }
+
+            let index = 1;
+            for(const studentId in studentsCache) {
+                const s = studentsCache[studentId];
+                const score = currentScores[studentId] ? currentScores[studentId].score : '';
+                
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="p-3 text-center">${index++}</td>
+                        <td class="p-3 text-sm">${s.studentCode}</td>
+                        <td class="p-3">${s.name}</td>
+                        <td class="p-3 text-center">
+                            <input type="number" min="0" max="${task.maxScore}" 
+                                class="w-20 p-1 border border-gray-300 rounded text-center focus:ring-2 focus:ring-secondary outline-none" 
+                                value="${score}"
+                                placeholder="-"
+                                onchange="window.saveScore('${taskId}', '${studentId}', this.value, ${task.maxScore})">
+                        </td>
+                    </tr>
+                `;
+            }
+        };
+
+        window.saveScore = async (taskId, studentId, scoreValue, maxScore) => {
+            if(scoreValue === '') {
+                // Remove score
+                await remove(ref(db, `users/${currentUser.uid}/scores/${currentClassId}/${taskId}/${studentId}`));
+                Toast.fire({ icon: 'success', title: 'ลบคะแนนแล้ว' });
+                return;
+            }
+
+            let score = parseFloat(scoreValue);
+            if(score < 0) score = 0;
+            if(score > maxScore) score = maxScore; // Cap at max score
+
+            try {
+                await set(ref(db, `users/${currentUser.uid}/scores/${currentClassId}/${taskId}/${studentId}`), {
+                    score: score,
+                    updatedAt: Date.now()
+                });
+                Toast.fire({ icon: 'success', title: 'บันทึกคะแนนแล้ว' });
+                
+                // อัปเดตค่าใน input กรณีที่ถูก cap
+                const inputs = document.querySelectorAll(`input[onchange*="${studentId}"]`);
+                if(inputs.length > 0) inputs[0].value = score;
+
+            } catch (e) {
+                Swal.fire('Error', 'ไม่สามารถบันทึกคะแนนได้', 'error');
+            }
+        };
+
+        // ================= MODULE 5: SUMMARY =================
+        window.loadSummary = async () => {
+            const thead = document.getElementById('summaryTableHeader');
+            const tbody = document.getElementById('summaryTableBody');
+            
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+
+            if(Object.keys(studentsCache).length === 0) {
+                tbody.innerHTML = `<tr><td class="p-4 text-center text-gray-500">ไม่มีข้อมูล</td></tr>`;
+                return;
+            }
+
+            // Fetch all scores
+            const scoresSnapshot = await get(ref(db, `users/${currentUser.uid}/scores/${currentClassId}`));
+            const allScores = scoresSnapshot.exists() ? scoresSnapshot.val() : {};
+
+            // Build Header
+            let headerHTML = `
+                <th class="p-3 rounded-tl-lg sticky left-0 z-10 bg-primary">รหัส</th>
+                <th class="p-3 sticky left-16 z-10 bg-primary min-w-[200px]">ชื่อ-นามสกุล</th>
+            `;
+            
+            // เรียงลำดับ Task ตามวันที่สร้าง (ง่ายๆ คือใช้ loop ปกติ เพราะ push id เรียงตามเวลาอยู่แล้ว)
+            let totalMaxScore = 0;
+            const taskKeys = Object.keys(tasksCache);
+            
+            taskKeys.forEach(taskId => {
+                const t = tasksCache[taskId];
+                totalMaxScore += t.maxScore;
+                headerHTML += `<th class="p-3 text-center border-l border-blue-800"><div class="text-sm line-clamp-1">${t.name}</div><div class="text-xs text-blue-200">(${t.maxScore})</div></th>`;
+            });
+            
+            headerHTML += `<th class="p-3 text-center border-l border-blue-800 rounded-tr-lg">รวม<br><span class="text-xs text-blue-200">(${totalMaxScore})</span></th>`;
+            thead.innerHTML = headerHTML;
+
+            // Build Body
+            for(const studentId in studentsCache) {
+                const s = studentsCache[studentId];
+                let rowHTML = `
+                    <tr class="border-b hover:bg-gray-100 transition">
+                        <td class="p-3 sticky left-0 z-10 bg-white border-r text-sm text-gray-500">${s.studentCode}</td>
+                        <td class="p-3 sticky left-16 z-10 bg-white border-r font-medium">${s.name}</td>
+                `;
+                
+                let studentTotal = 0;
+                
+                taskKeys.forEach(taskId => {
+                    let s_score = "-";
+                    if(allScores[taskId] && allScores[taskId][studentId]) {
+                        s_score = allScores[taskId][studentId].score;
+                        studentTotal += s_score;
+                    }
+                    rowHTML += `<td class="p-3 text-center border-l">${s_score}</td>`;
+                });
+
+                // การคำนวณเปอร์เซ็นต์สำหรับสีของคะแนนรวม
+                let percent = totalMaxScore > 0 ? (studentTotal / totalMaxScore) * 100 : 0;
+                let colorClass = "text-gray-800";
+                if(percent >= 80) colorClass = "text-green-600 font-bold";
+                else if(percent < 50) colorClass = "text-red-500 font-bold";
+
+                rowHTML += `<td class="p-3 text-center border-l font-bold bg-blue-50 ${colorClass}">${studentTotal}</td></tr>`;
+                tbody.innerHTML += rowHTML;
+            }
+        };
+
+    </script>
+</body>
+</html>
